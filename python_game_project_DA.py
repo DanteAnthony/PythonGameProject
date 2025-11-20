@@ -24,15 +24,56 @@ class Bean(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('img/Beanman128.png').convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
+        self.rect = self.image.get_rect(center = [x, y])
         self.vel = 0
+        self.speed = 8
+        self.on_ground = True
+        self.facing_right = True
     
     def update(self):
+        # Self Functions
         self.apply_gravity()
+        self.handle_movement()
+        self.handle_jumping()
 
-        if self.rect.bottom > 900:
-            self.kill()
+        # Ground Collision (for now)
+        if self.rect.bottom >= 600:
+            self.rect.bottom = 600
+            self.on_ground = True
+        elif self.rect.bottom < 600:
+            self.on_ground = False
+
+        # Flip Sprite
+        if self.facing_right == False:
+            self.flipped_img = pygame.transform.flip(self.image, True, False)
+        elif self.facing_right == True:
+            pass
+
+    def handle_movement(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            self.flip_sprite(False)
+            self.rect.x -= self.speed
+        if keys[pygame.K_d]:
+            self.flip_sprite(True)
+            self.rect.x += self.speed
+
+    def handle_jumping(self):
+        keys = pygame.key.get_pressed()
+        if self.on_ground == True:
+            if keys[pygame.K_SPACE]:
+                self.on_ground = False
+                self.vel = -10
+            else:
+                self.on_ground = True
+
+    def flip_sprite(self, new_direction_right):
+        if new_direction_right and not self.facing_right:
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.facing_right = True
+        elif not new_direction_right and self.facing_right:
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.facing_right = False
 
     def apply_gravity(self):
         self.vel += 0.5
