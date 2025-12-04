@@ -1,6 +1,7 @@
 # Pygame Setup
 import pygame
 from pygame import *
+import random
 
 pygame.init()
 
@@ -135,15 +136,18 @@ class Rect(pygame.sprite.Sprite):
         self.rect.y += int(self.vel)
 
 # Groups
+all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
-
-player = Bean(int(SCREEN_WIDTH / 2), 100)
-player_group.add(player)
-
 enemy_group = pygame.sprite.Group()
 
-enemy = Rect(int(SCREEN_WIDTH / 3), 100)
-enemy_group.add(enemy)
+player = Bean(int(SCREEN_WIDTH / 2), 100)
+all_sprites.add(player)
+player_group.add(player)
+
+for i in range(5): 
+    enemy = Rect(random.randint(10, 1270), 100)
+    all_sprites.add(enemy)
+    enemy_group.add(enemy)
 
 # Run Loop
 run = True
@@ -152,10 +156,14 @@ while run:
     CLOCK.tick(FPS)
 
     SCREEN.fill((72, 72, 72))
-    player_group.draw(SCREEN)
-    player_group.update()
-    enemy_group.draw(SCREEN)
-    enemy_group.update()
+    all_sprites.draw(SCREEN)
+    all_sprites.update()
+
+    collisions = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
+
+    if collisions:
+        for player_sprite, collided_enemies, in collisions.items():
+            pass
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
